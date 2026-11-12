@@ -2064,6 +2064,22 @@ Flickable {
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Mutes Moonlight's audio when you Alt+Tab out of the stream or click on a different window.")
                 }
+
+                CheckBox {
+                    id: micPassthroughCheck
+                    width: parent.width
+                    text: qsTr("Send this device's microphone to the host")
+                    font.pointSize: 12
+                    checked: StreamingPreferences.micPassthrough
+                    onCheckedChanged: {
+                        StreamingPreferences.micPassthrough = checked
+                    }
+
+                    ToolTip.delay: 1000
+                    ToolTip.timeout: 5000
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Requires a host with microphone passthrough support (such as Rubylight or Apollo). Uses the default input device. Restart any game in progress for this setting to take effect.")
+                }
             }
         }
 

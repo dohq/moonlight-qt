@@ -213,6 +213,7 @@ SOURCES += \
     streaming/gamescopecomposition.cpp \
     streaming/audio/audio.cpp \
     streaming/audio/renderers/sdlaud.cpp \
+    streaming/audio/microphonecapture.cpp \
     gui/computermodel.cpp \
     gui/appmodel.cpp \
     streaming/bandwidth.cpp \
@@ -282,6 +283,7 @@ HEADERS += \
     streaming/video/pyrowave/pyrowavebitrate.h \
     streaming/gamescopecomposition.h \
     streaming/audio/renderers/renderer.h \
+    streaming/audio/microphonecapture.h \
     streaming/audio/renderers/sdl.h \
     gui/computermodel.h \
     gui/onlinecomputerentries.h \

@@ -883,6 +883,8 @@ bool Session::initialize(QQuickWindow* qtWindow)
         break;
     }
 
+    m_StreamConfig.enableMic = m_Preferences->micPassthrough;
+
     LiInitializeAudioCallbacks(&m_AudioCallbacks);
     m_AudioCallbacks.init = arInit;
     m_AudioCallbacks.cleanup = arCleanup;
@@ -1515,6 +1517,10 @@ private:
         // LiStartConnection() and LiStopConnection().
         SDL_assert(m_Session->m_VideoDecoder == nullptr);
 
+        // Stop capturing first: LiSendMicrophoneOpusData() is invalid after the
+        // connection is torn down, and the audio renderer owns the SDL audio quit.
+        m_Session->m_MicCapture.stop();
+
         // Finish cleanup of the connection state
         LiStopConnection();
 
@@ -1995,6 +2001,11 @@ bool Session::startConnectionAsync()
         // We already displayed an error dialog in the stage failure
         // listener.
         return false;
+    }
+
+    // Capture only starts once the host has accepted the microphone stream in RTSP.
+    if (m_StreamConfig.enableMic) {
+        m_MicCapture.start();
     }
 
     m_HostLaunchWarning = LaunchWarning::text(launchWarning);

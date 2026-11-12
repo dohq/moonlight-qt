@@ -5,6 +5,7 @@
 
 #include <Limelight.h>
 #include <opus_multistream.h>
+#include "streaming/audio/microphonecapture.h"
 #include "settings/streamingpreferences.h"
 #include "input/input.h"
 #include "video/decoder.h"
@@ -300,6 +301,7 @@ private:
     STREAM_CONFIGURATION m_StreamConfig;
     DECODER_RENDERER_CALLBACKS m_VideoCallbacks;
     AUDIO_RENDERER_CALLBACKS m_AudioCallbacks;
+    MicrophoneCapture m_MicCapture;
     NvComputer* m_Computer;
     NvApp m_App;
     SDL_Window* m_Window;
