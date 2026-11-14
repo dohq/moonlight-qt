@@ -1,0 +1,47 @@
+# Maintainer: dohq
+#
+# Builds the checked-out repository (not an upstream release), so that local
+# commits such as the microphone passthrough are installed. It replaces the
+# AUR moonlight-vrr-bin / official moonlight-qt packages.
+#
+# Usage: cd packaging/arch && makepkg -si
+pkgname=moonlight-qt-mic-git
+_pkgname=moonlight-qt
+pkgver=6.2.0.r3633.g260ea0da
+pkgrel=1
+pkgdesc='Moonlight game streaming client (VRR/PyroWave fork with microphone passthrough)'
+arch=('x86_64')
+url='https://github.com/dohq/moonlight-qt'
+license=('GPL-3.0-or-later')
+depends=('qt6-base' 'qt6-declarative' 'qt6-svg' 'ffmpeg' 'sdl2' 'sdl2_ttf'
+         'opus' 'openssl' 'libplacebo' 'libva' 'libdrm' 'wayland' 'libx11'
+         'vulkan-icd-loader' 'hicolor-icon-theme')
+makedepends=('git' 'vulkan-headers')
+provides=('moonlight-qt' 'moonlight-vrr')
+conflicts=('moonlight-qt' 'moonlight-vrr' 'moonlight-vrr-bin')
+# The repository is built from the local checkout; submodules (including the
+# microphone-enabled dohq/moonlight-common-c) are fetched from their URLs.
+source=("${_pkgname}::git+file://$(realpath "${PWD}/../..")")
+sha256sums=('SKIP')
+
+pkgver() {
+  cd "${_pkgname}"
+  printf '%s.r%s.g%s' "$(cat app/version.txt)" \
+    "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+prepare() {
+  cd "${_pkgname}"
+  git submodule update --init --recursive
+}
+
+build() {
+  cd "${_pkgname}"
+  qmake6 moonlight-qt.pro PREFIX=/usr CONFIG+=release
+  make
+}
+
+package() {
+  cd "${_pkgname}"
+  make INSTALL_ROOT="${pkgdir}" install
+}
