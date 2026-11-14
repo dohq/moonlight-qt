@@ -2115,6 +2115,8 @@ Flickable {
                         }
                         model = items
                         currentIndex = index
+                        // The width is otherwise only fitted after a selection.
+                        recalculateWidth()
                     }
 
                     onActivated: {
