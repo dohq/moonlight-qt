@@ -2078,7 +2078,48 @@ Flickable {
                     ToolTip.delay: 1000
                     ToolTip.timeout: 5000
                     ToolTip.visible: hovered
-                    ToolTip.text: qsTr("Requires a host with microphone passthrough support (such as Rubylight or Apollo). Uses the default input device. Restart any game in progress for this setting to take effect.")
+                    ToolTip.text: qsTr("Requires a host with microphone passthrough support (such as Rubylight or Apollo). Restart any game in progress for this setting to take effect.")
+                }
+
+                Label {
+                    width: parent.width
+                    id: micDeviceTitle
+                    text: qsTr("Input source")
+                    font.pointSize: 12
+                    wrapMode: Text.Wrap
+                    enabled: micPassthroughCheck.checked
+                }
+
+                AutoResizingComboBox {
+                    id: micDeviceComboBox
+                    enabled: micPassthroughCheck.checked
+                    property var deviceNames: []
+
+                    Component.onCompleted: {
+                        // The first entry is the system default, stored as an empty name.
+                        deviceNames = StreamingPreferences.getMicDevices()
+                        var saved = StreamingPreferences.micDevice
+                        var items = [qsTr("Default")]
+                        var index = 0
+                        for (var i = 0; i < deviceNames.length; i++) {
+                            items.push(deviceNames[i])
+                            if (deviceNames[i] === saved) {
+                                index = i + 1
+                            }
+                        }
+                        if (saved !== "" && index === 0) {
+                            // Keep an unplugged device selected rather than silently resetting it.
+                            items.push(saved)
+                            deviceNames.push(saved)
+                            index = items.length - 1
+                        }
+                        model = items
+                        currentIndex = index
+                    }
+
+                    onActivated: {
+                        StreamingPreferences.micDevice = currentIndex === 0 ? "" : deviceNames[currentIndex - 1]
+                    }
                 }
             }
         }

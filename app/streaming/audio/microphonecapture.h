@@ -15,7 +15,8 @@ public:
     MicrophoneCapture() = default;
     ~MicrophoneCapture();
 
-    bool start();
+    // deviceName is an SDL capture device name; null or empty selects the system default.
+    bool start(const char* deviceName);
     void stop();
 
 private:

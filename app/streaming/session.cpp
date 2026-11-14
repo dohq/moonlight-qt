@@ -2005,7 +2005,7 @@ bool Session::startConnectionAsync()
 
     // Capture only starts once the host has accepted the microphone stream in RTSP.
     if (m_StreamConfig.enableMic) {
-        m_MicCapture.start();
+        m_MicCapture.start(m_Preferences->micDevice.toUtf8().constData());
     }
 
     m_HostLaunchWarning = LaunchWarning::text(launchWarning);

@@ -18,6 +18,8 @@
 
 #include <QtDebug>
 
+#include <SDL.h>
+
 #include <vector>
 
 #define SER_STREAMSETTINGS "streamsettings"
@@ -67,6 +69,7 @@
 #define SER_SWAPMOUSEBUTTONS "swapmousebuttons"
 #define SER_MUTEONFOCUSLOSS "muteonfocusloss"
 #define SER_MICPASSTHROUGH "micpassthrough"
+#define SER_MICDEVICE "micdevice"
 #define SER_BACKGROUNDGAMEPAD "backgroundgamepad"
 #define SER_REVERSESCROLL "reversescroll"
 #define SER_SWAPFACEBUTTONS "swapfacebuttons"
@@ -247,6 +250,7 @@ void StreamingPreferences::reload()
     muteOnFocusLoss = settings.value(SER_MUTEONFOCUSLOSS, false).toBool();
     // Off by default: it sends the user's microphone to the host.
     micPassthrough = settings.value(SER_MICPASSTHROUGH, false).toBool();
+    micDevice = settings.value(SER_MICDEVICE, QString()).toString();
     backgroundGamepad = settings.value(SER_BACKGROUNDGAMEPAD, false).toBool();
     reverseScrollDirection = settings.value(SER_REVERSESCROLL, false).toBool();
     swapFaceButtons = settings.value(SER_SWAPFACEBUTTONS, false).toBool();
@@ -492,6 +496,7 @@ void StreamingPreferences::save()
     settings.setValue(SER_SWAPMOUSEBUTTONS, swapMouseButtons);
     settings.setValue(SER_MUTEONFOCUSLOSS, muteOnFocusLoss);
     settings.setValue(SER_MICPASSTHROUGH, micPassthrough);
+    settings.setValue(SER_MICDEVICE, micDevice);
     settings.setValue(SER_BACKGROUNDGAMEPAD, backgroundGamepad);
     settings.setValue(SER_REVERSESCROLL, reverseScrollDirection);
     settings.setValue(SER_SWAPFACEBUTTONS, swapFaceButtons);
@@ -546,6 +551,26 @@ void StreamingPreferences::exportLatestDiagnostics()
     // dereferences preferences; Qt discards the UI callback if they are gone.
     connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, thread, [thread] { thread->wait(); });
     thread->start();
+}
+
+QStringList StreamingPreferences::getMicDevices() const
+{
+    QStringList names;
+
+    // The settings page can be open outside a stream, so SDL audio may not be up yet.
+    if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0) {
+        return names;
+    }
+    int count = SDL_GetNumAudioDevices(1);
+    for (int i = 0; i < count; i++) {
+        const char* name = SDL_GetAudioDeviceName(i, 1);
+        if (name != nullptr) {
+            names.append(QString::fromUtf8(name));
+        }
+    }
+    SDL_QuitSubSystem(SDL_INIT_AUDIO);
+
+    return names;
 }
 
 QVariantList StreamingPreferences::getFpsChoices(const QVariantList& refreshRates) const

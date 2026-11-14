@@ -210,6 +210,7 @@ public:
     Q_PROPERTY(bool swapMouseButtons MEMBER swapMouseButtons NOTIFY mouseButtonsChanged)
     Q_PROPERTY(bool muteOnFocusLoss MEMBER muteOnFocusLoss NOTIFY muteOnFocusLossChanged)
     Q_PROPERTY(bool micPassthrough MEMBER micPassthrough NOTIFY micPassthroughChanged)
+    Q_PROPERTY(QString micDevice MEMBER micDevice NOTIFY micDeviceChanged)
     Q_PROPERTY(bool backgroundGamepad MEMBER backgroundGamepad NOTIFY backgroundGamepadChanged)
     Q_PROPERTY(bool reverseScrollDirection MEMBER reverseScrollDirection NOTIFY reverseScrollDirectionChanged)
     Q_PROPERTY(bool swapFaceButtons MEMBER swapFaceButtons NOTIFY swapFaceButtonsChanged)
@@ -234,6 +235,9 @@ public:
     // Rate choices are advisory; toggling VRR never rewrites the saved FPS
     // preference.
     Q_INVOKABLE QVariantList getFpsChoices(const QVariantList& refreshRates) const;
+
+    // Names of the capture devices SDL can open, for the microphone picker.
+    Q_INVOKABLE QStringList getMicDevices() const;
 
     // Directly accessible members for preferences
     int width;
@@ -273,6 +277,8 @@ public:
     bool swapMouseButtons;
     bool muteOnFocusLoss;
     bool micPassthrough;
+    // SDL capture device name; empty selects the system default.
+    QString micDevice;
     bool backgroundGamepad;
     bool reverseScrollDirection;
     bool swapFaceButtons;
@@ -346,6 +352,7 @@ signals:
     void mouseButtonsChanged();
     void muteOnFocusLossChanged();
     void micPassthroughChanged();
+    void micDeviceChanged();
     void backgroundGamepadChanged();
     void reverseScrollDirectionChanged();
     void swapFaceButtonsChanged();

@@ -17,7 +17,7 @@ MicrophoneCapture::~MicrophoneCapture()
     stop();
 }
 
-bool MicrophoneCapture::start()
+bool MicrophoneCapture::start(const char* deviceName)
 {
     if (m_Device != 0) {
         return true;
@@ -60,7 +60,17 @@ bool MicrophoneCapture::start()
     // No allowed changes: SDL resamples/remixes so the callback always sees mono S16 at 48 kHz.
     m_Pending.clear();
     m_Pending.reserve(kCaptureBufferSamples + kFrameSamples);
-    m_Device = SDL_OpenAudioDevice(nullptr, 1, &want, &have, 0);
+    if (deviceName != nullptr && deviceName[0] == '\0') {
+        deviceName = nullptr;
+    }
+    m_Device = SDL_OpenAudioDevice(deviceName, 1, &want, &have, 0);
+    if (m_Device == 0 && deviceName != nullptr) {
+        // The saved device may be unplugged; a missing mic should not silence the stream.
+        SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION,
+                    "Microphone: could not open \"%s\" (%s), using the default device",
+                    deviceName, SDL_GetError());
+        m_Device = SDL_OpenAudioDevice(nullptr, 1, &want, &have, 0);
+    }
     if (m_Device == 0) {
         SDL_LogError(SDL_LOG_CATEGORY_APPLICATION,
                      "Microphone: SDL_OpenAudioDevice(capture) failed: %s", SDL_GetError());
